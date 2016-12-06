@@ -2,9 +2,28 @@ doctype html
 html(lang='fr')
   head
     meta(charset='utf-8')
-    link(href="http://vjs.zencdn.net/5.12.6/video-js.css" rel="stylesheet")
     title ui-explorer
-  body
-    block body
+    meta(http-equiv="X-UA-Compatible" content="IE=edge")
+    meta(name="viewport" content="width=device-width, initial-scale=1")
+    link(rel="stylesheet", href="stylesheets/index.css", attr)
+    link(href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.8/css/materialize.min.css" rel="stylesheet" )
+    link(href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet")
 
-    script(src="http://vjs.zencdn.net/5.12.6/video.js")
+    block stylesheets
+  body
+    nav.orange
+      .nav-wrapper
+        a.brand-logo(href='#') ui-explorer
+        //- ul#nav-mobile.right.hide-on-med-and-down
+        //-   li
+        //-     a(href='#') action
+
+    .container
+      block body
+
+    script(
+      src="https://code.jquery.com/jquery-3.1.1.min.js"
+      integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+      crossorigin="anonymous")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.8/js/materialize.min.js")
+    block scripts

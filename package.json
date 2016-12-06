@@ -2,9 +2,10 @@
   "name": "ui-explorer",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js",
+    "dev": "./node_modules/.bin/nodemon server.js"
   },
   "keywords": [],
   "author": "",
@@ -13,5 +14,14 @@
     "express": "^4.14.0",
     "fs-promise": "^1.0.0",
     "pug": "^2.0.0-beta6"
+  },
+  "devDependencies": {
+    "babel-eslint": "^7.1.1",
+    "eslint": "^3.11.1",
+    "eslint-config-standard": "^6.2.1",
+    "eslint-plugin-flowtype": "^2.29.1",
+    "eslint-plugin-promise": "^3.4.0",
+    "eslint-plugin-standard": "^2.0.1",
+    "nodemon": "^1.11.0"
   }
 }

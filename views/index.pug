@@ -1,8 +1,13 @@
 extends ./_layout.pug
 
 block body
-  each file in files
-    div
-      - var url = folderPath ? ('/' + folderPath + '/' + file.name) : file.name
-      a(href=url)
-        = file.name
+  .row
+    each file in files
+      .col.s3
+        - var url = folderPath ? ('/' + folderPath + '/' + file.name) : file.name
+        - var folderClass = file.isDirectory ? 'ux-Details-link--folder' : ''
+
+        a.ux-Details-link(href=url class=folderClass)
+          - var icon = file.isDirectory ? 'folder' : 'insert_drive_file'
+          i.material-icons.large= icon
+          span= file.name

@@ -1,11 +1,14 @@
-const PORT = 4444
-
 const express = require('express')
 const app = express()
 const fs = require('fs-promise')
 const path = require('path')
 
+const __DEV__ = process.env.NODE_ENV !== 'production'
+const PORT = 4444
+const ROOT = __DEV__ ? __dirname : path.resolve(__dirname, '../downloads')
+
 app.set('view engine', 'pug')
+app.use(express.static('assets'))
 
 const isFolder = (file) => !path.extname(file)
 
@@ -19,8 +22,6 @@ const resolveDirectories = (currentFolder) => (files) => {
       }))
   ))
 }
-
-const ROOT = path.resolve(__dirname, '../downloads')
 
 app.get('/', (req, res) => {
   fs
@@ -36,24 +37,28 @@ app.get('/source/*', (req, res) => {
   const folderPathParams = req.path.replace('/source/', '')
   const folderPath = path.resolve(ROOT, folderPathParams)
 
-  fs.stat(folderPath, function(err, stats) {
+  fs.stat(folderPath, (err, stats) => {
+    if (err) {
+      return res.sendStatus(500)
+    }
+
     const range = req.headers.range
 
     if (!range) {
       // 416 Wrong range
-     return res.sendStatus(416)
+      return res.sendStatus(416)
     }
-    const positions = range.replace(/bytes=/, "").split("-")
+    const positions = range.replace(/bytes=/, '').split('-')
     const start = parseInt(positions[0], 10)
     const total = stats.size
     const end = positions[1] ? parseInt(positions[1], 10) : total - 1
     const chunksize = (end - start) + 1
 
     res.writeHead(206, {
-      "Content-Range": `bytes ${start}-${end}/${total}`,
-      "Accept-Ranges": "bytes",
-      "Content-Length": chunksize,
-      "Content-Type": "video/mp4"
+      'Content-Range': `bytes ${start}-${end}/${total}`,
+      'Accept-Ranges': 'bytes',
+      'Content-Length': chunksize,
+      'Content-Type': 'video/mp4'
     })
 
     const stream = fs
@@ -61,8 +66,8 @@ app.get('/source/*', (req, res) => {
         start,
         end
       })
-      .on("open", () => stream.pipe(res))
-      .on("error", err => res.end(err))
+      .on('open', () => stream.pipe(res))
+      .on('error', err => res.end(err))
   })
 })
 

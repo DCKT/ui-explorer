@@ -1,5 +1,11 @@
 extends ./_layout.pug
 
+block stylesheets
+  link(href="http://vjs.zencdn.net/5.12.6/video-js.css" rel="stylesheet")
+
+block scripts
+  script(src="http://vjs.zencdn.net/5.12.6/video.js")
+
 block body
   - var videoSrc = "http://localhost:4444/source/" + folderPath
   video.video-js(src=videoSrc controls='true' width="800" height="600" data-setup="{}")
