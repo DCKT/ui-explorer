@@ -1,0 +1,8 @@
+extends ./_layout.pug
+
+block body
+  each file in files
+    div
+      - var url = folderPath ? ('/' + folderPath + '/' + file.name) : file.name
+      a(href=url)
+        = file.name
