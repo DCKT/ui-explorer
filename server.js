@@ -20,10 +20,12 @@ const resolveDirectories = (currentFolder) => (files) => {
   ))
 }
 
+const ROOT = path.resolve(__dirname, '../downloads')
+
 app.get('/', (req, res) => {
   fs
-    .readdir(__dirname)
-    .then(resolveDirectories(__dirname))
+    .readdir(ROOT)
+    .then(resolveDirectories(ROOT))
     .then(files => {
       res.render('index', { files })
     })
@@ -32,7 +34,7 @@ app.get('/', (req, res) => {
 
 app.get('/source/*', (req, res) => {
   const folderPathParams = req.path.replace('/source/', '')
-  const folderPath = path.resolve(__dirname, folderPathParams)
+  const folderPath = path.resolve(ROOT, folderPathParams)
 
   fs.stat(folderPath, function(err, stats) {
     const range = req.headers.range
