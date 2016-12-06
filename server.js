@@ -28,7 +28,10 @@ app.get('/', (req, res) => {
     .readdir(ROOT)
     .then(resolveDirectories(ROOT))
     .then(files => {
-      res.render('index', { files })
+      res.render('index', {
+        files,
+        isRoot: true
+      })
     })
     .catch(err => console.error(err))
 })
@@ -71,17 +74,36 @@ app.get('/source/*', (req, res) => {
   })
 })
 
+app.get('/download/*', (req, res) => {
+  const folderPathParams = req.path.replace('/download/', '')
+  const folderPath = path.resolve(ROOT, folderPathParams)
+
+  fs
+    .stat(folderPath)
+    .then(_ => {
+      res.download(folderPath)
+    })
+    .catch(_ => res.sendStatus(500))
+})
+
 app.get('*', (req, res) => {
   const folderPathParams = req.path.slice(1)
   const folderPath = path.resolve(__dirname, folderPathParams)
 
   if (isFolder(folderPath)) {
+    const currentPath = req.path.split('/')
+    const backUrl = currentPath.slice(0, currentPath.length - 1).join('/') || '/'
+
     fs
       .ensureFile(folderPath)
       .then(() => fs.readdir(folderPath))
       .then(resolveDirectories(folderPath))
       .then(files => {
-        res.render('index', { files, folderPath: folderPathParams })
+        res.render('index', {
+          files,
+          backUrl,
+          folderPath: folderPathParams
+        })
       })
       .catch(err => {
         console.error(err)

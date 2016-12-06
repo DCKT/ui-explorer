@@ -1,7 +1,17 @@
 extends ./_layout.pug
 
 block body
+  .ux-Details-contextMenu.js-ContextMenu
+    a.ux-Details-contextMenuLink.js-ContextMenu-download(target="_blank") Download
+    a.ux-Details-contextMenuLink Open
+    a.ux-Details-contextMenuLink Copy URL
+
   .row
+    .col.s12
+      unless isRoot
+        a.ux-Details-back(href=backUrl)
+          i.material-icons.medium keyboard_return
+          |Back
     each file in files
       .col.s3
         - var url = folderPath ? ('/' + folderPath + '/' + file.name) : file.name
