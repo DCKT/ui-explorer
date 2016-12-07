@@ -102,7 +102,8 @@ app.get('*', (req, res) => {
         res.render('index', {
           files,
           backUrl,
-          folderPath: folderPathParams
+          folderPath: folderPathParams,
+          breadcrumb: req.path.slice(1).split('/')
         })
       })
       .catch(err => {
@@ -110,7 +111,11 @@ app.get('*', (req, res) => {
         res.render('error', { folderPath })
       })
   } else {
-    res.render('details', { folderPath: folderPathParams })
+    res.render('details', {
+      folderPath: folderPathParams,
+      name: req.path.split('/').slice(-1),
+      breadcrumb: req.path.slice(1).split('/')
+    })
   }
 })
 

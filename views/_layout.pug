@@ -13,10 +13,14 @@ html(lang='fr')
   body
     nav.orange
       .nav-wrapper
-        a.brand-logo(href='#') ui-explorer
-        //- ul#nav-mobile.right.hide-on-med-and-down
-        //-   li
-        //-     a(href='#') action
+        .col.s12
+          a.nav-logo(href='/') ui-explorer
+          if breadcrumb
+            each link, i in breadcrumb
+              a.breadcrumb(href=link)= link
+
+        ul#nav-mobile.right.hide-on-med-and-down
+          block nav_actions
 
     .container
       block body
