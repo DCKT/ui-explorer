@@ -1,4 +1,5 @@
-/* global $ */
+/* eslint disable no-new */
+/* global $, Clipboard */
 
 const getPosition = event => {
   const e = event || window.event
@@ -23,6 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const links = document.querySelectorAll('.ux-Details-link')
   const contextMenu = document.querySelector('.js-ContextMenu')
   const contextMenuDownload = document.querySelector('.js-ContextMenu-download')
+  const contextMenuCopy = document.querySelector('.js-ContextMenu-copy')
 
   let currentLink = null
 
@@ -37,6 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
       currentLink = this
       const position = getPosition(e)
       contextMenuDownload.setAttribute('href', `/download/${this.getAttribute('href')}`)
+      contextMenuCopy.setAttribute('value', `${window.location.origin}${this.getAttribute('href')}`)
       this.classList.add('ux-Details-link--hover')
       contextMenu.classList.add('ux-Details-contextMenu--visible')
       contextMenu.style.top = `${position.y}px`
@@ -44,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
     })
   })
 
-  document.addEventListener('click', (e) => {
+  document.addEventListener('click', e => {
     const isFromContext = $(e.target).closest('.js-ContextMenu').length
 
     if (!isFromContext && currentLink) {
@@ -53,5 +56,20 @@ document.addEventListener('DOMContentLoaded', () => {
       currentLink.classList.remove('ux-Details-link--hover')
       currentLink = null
     }
+  })
+
+  var clipboard = new Clipboard('.ux-Details-contextMenuLink--copy')
+
+  clipboard.on('success', function (e) {
+    contextMenu.classList.remove('ux-Details-contextMenu--visible')
+    contextMenu.style = ''
+    currentLink.classList.remove('ux-Details-link--hover')
+    currentLink = null
+    e.clearSelection()
+  })
+
+  clipboard.on('error', function (e) {
+    console.error('Action:', e.action)
+    console.error('Trigger:', e.trigger)
   })
 })

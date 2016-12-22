@@ -13,6 +13,7 @@
      -moz-user-select: none; /* Firefox */
       -ms-user-select: none; /* Internet Explorer/Edge */
           user-select: none;
+  word-break: break-all;
 }
 
 .ux-Details-link:hover, .ux-Details-link--hover {
@@ -84,4 +85,10 @@
 
 .ux-Details-back i {
   margin-right: 15px;
+}
+
+.js-ContextMenu-copy {
+  position: absolute;
+  left: -100%;
+  top: -100%;
 }

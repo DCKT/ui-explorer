@@ -2,6 +2,7 @@ const express = require('express')
 const app = express()
 const fs = require('fs-promise')
 const path = require('path')
+const zip = require('express-zip')
 
 const __DEV__ = process.env.NODE_ENV !== 'production'
 const PORT = 4444
@@ -80,8 +81,26 @@ app.get('/download/*', (req, res) => {
 
   fs
     .stat(folderPath)
-    .then(_ => {
-      res.download(folderPath)
+    .then(stats => {
+      if (stats.isDirectory()) {
+        const folderName = `${folderPath.split('/').reverse()[0]}.zip`
+
+        fs.readdir(folderPath, (err, files) => {
+          if (err) {
+            console.log(err)
+            res.sendStatus(500)
+          } else {
+            res.zip(files.map(file => {
+              return {
+                path: `${folderPath}/${file}`,
+                name: file
+              }
+            }), folderName)
+          }
+        })
+      } else {
+        res.download(folderPath)
+      }
     })
     .catch(_ => res.sendStatus(500))
 })

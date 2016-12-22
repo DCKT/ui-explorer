@@ -3,8 +3,8 @@ extends ./_layout.pug
 block body
   .ux-Details-contextMenu.js-ContextMenu
     a.ux-Details-contextMenuLink.js-ContextMenu-download(target="_blank") Download
-    a.ux-Details-contextMenuLink Open
-    a.ux-Details-contextMenuLink Copy URL
+    a.ux-Details-contextMenuLink.ux-Details-contextMenuLink--copy(data-clipboard-target='.js-ContextMenu-copy') Copy URL
+  input.js-ContextMenu-copy(type="text")
 
   .row
     .col.s12
