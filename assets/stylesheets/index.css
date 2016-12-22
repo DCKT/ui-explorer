@@ -92,3 +92,11 @@
   left: -100%;
   top: -100%;
 }
+.video-js {
+  margin: 20px auto;
+}
+
+.nav-logo {
+  font-size: 21px;
+  margin-left: 10px;
+}

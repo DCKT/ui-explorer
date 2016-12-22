@@ -6,6 +6,14 @@ block stylesheets
 block scripts
   script(src="http://vjs.zencdn.net/5.12.6/video.js")
 
+block nav_actions
+  li
+    - var downloadUrl = '/download/' + folderPath
+    a(href=downloadUrl)
+      i.material-icons.left file_download
+      |Download
+
 block body
   - var videoSrc = "http://localhost:4444/source/" + folderPath
+  h3= name
   video.video-js(src=videoSrc controls='true' width="800" height="600" data-setup="{}")
