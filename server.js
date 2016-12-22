@@ -38,7 +38,7 @@ app.get('/', (req, res) => {
 })
 
 app.get('/source/*', (req, res) => {
-  const folderPathParams = req.path.replace('/source/', '')
+  const folderPathParams = decodeURIComponent(req.path.replace('/source/', ''))
   const folderPath = path.resolve(ROOT, folderPathParams)
 
   fs.stat(folderPath, (err, stats) => {
@@ -76,7 +76,7 @@ app.get('/source/*', (req, res) => {
 })
 
 app.get('/download/*', (req, res) => {
-  const folderPathParams = req.path.replace('/download/', '')
+  const folderPathParams = decodeURIComponent(req.path.replace('/download/', ''))
   const folderPath = path.resolve(ROOT, folderPathParams)
 
   fs
@@ -106,7 +106,7 @@ app.get('/download/*', (req, res) => {
 })
 
 app.get('*', (req, res) => {
-  const folderPathParams = req.path.slice(1)
+  const folderPathParams = decodeURIComponent(req.path.slice(1))
   const folderPath = path.resolve(__dirname, folderPathParams)
 
   if (isFolder(folderPath)) {
