@@ -17,7 +17,7 @@ html(lang='fr')
           a.nav-logo(href='/') ui-explorer
           if breadcrumb
             each link, i in breadcrumb
-              a.breadcrumb(href=link)= link
+              a.breadcrumb(href="/"+link.value)= link.label
 
         ul#nav-mobile.right.hide-on-med-and-down
           block nav_actions

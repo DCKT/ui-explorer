@@ -1,141 +1,149 @@
-const express = require('express')
-const app = express()
-const fs = require('fs-promise')
-const path = require('path')
-const zip = require('express-zip')
+const express = require("express");
+const app = express();
+const fs = require("fs-promise");
+const path = require("path");
+const zip = require("express-zip");
 
-const __DEV__ = process.env.NODE_ENV !== 'production'
-const PORT = 4444
-const ROOT = __DEV__ ? __dirname : path.resolve(__dirname, '../downloads')
+const __DEV__ = process.env.NODE_ENV !== "production";
+const PORT = 4444;
+const ROOT = __DEV__ ? __dirname : path.resolve(__dirname, "../downloads");
 
-app.set('view engine', 'pug')
-app.use(express.static('assets'))
+app.set("view engine", "pug");
+app.use(express.static("assets"));
 
-const isFolder = (file) => !path.extname(file)
+const isFolder = file => !path.extname(file);
 
-const resolveDirectories = (currentFolder) => (files) => {
-  return Promise.all(files.map(file =>
-    fs
-      .lstat(path.resolve(currentFolder, file))
-      .then(stats => ({
+const resolveDirectories = currentFolder => files => {
+  return Promise.all(
+    files.map(file =>
+      fs.lstat(path.resolve(currentFolder, file)).then(stats => ({
         name: file,
         isDirectory: stats.isDirectory()
       }))
-  ))
-}
+    )
+  );
+};
 
-app.get('/', (req, res) => {
-  fs
-    .readdir(ROOT)
+app.get("/", (req, res) => {
+  fs.readdir(ROOT)
     .then(resolveDirectories(ROOT))
     .then(files => {
-      res.render('index', {
+      res.render("index", {
         files,
         isRoot: true
-      })
+      });
     })
-    .catch(err => console.error(err))
-})
+    .catch(err => console.error(err));
+});
 
-app.get('/source/*', (req, res) => {
-  const folderPathParams = decodeURIComponent(req.path.replace('/source/', ''))
-  const folderPath = path.resolve(ROOT, folderPathParams)
+app.get("/source/*", (req, res) => {
+  const folderPathParams = decodeURIComponent(req.path.replace("/source/", ""));
+  const folderPath = path.resolve(ROOT, folderPathParams);
 
   fs.stat(folderPath, (err, stats) => {
     if (err) {
-      return res.sendStatus(500)
+      return res.sendStatus(500);
     }
 
-    const range = req.headers.range
+    const range = req.headers.range;
 
     if (!range) {
       // 416 Wrong range
-      return res.sendStatus(416)
+      return res.sendStatus(416);
     }
-    const positions = range.replace(/bytes=/, '').split('-')
-    const start = parseInt(positions[0], 10)
-    const total = stats.size
-    const end = positions[1] ? parseInt(positions[1], 10) : total - 1
-    const chunksize = (end - start) + 1
+    const positions = range.replace(/bytes=/, "").split("-");
+    const start = parseInt(positions[0], 10);
+    const total = stats.size;
+    const end = positions[1] ? parseInt(positions[1], 10) : total - 1;
+    const chunksize = end - start + 1;
 
     res.writeHead(206, {
-      'Content-Range': `bytes ${start}-${end}/${total}`,
-      'Accept-Ranges': 'bytes',
-      'Content-Length': chunksize,
-      'Content-Type': 'video/mp4'
-    })
+      "Content-Range": `bytes ${start}-${end}/${total}`,
+      "Accept-Ranges": "bytes",
+      "Content-Length": chunksize,
+      "Content-Type": "video/mp4"
+    });
 
     const stream = fs
       .createReadStream(folderPath, {
         start,
         end
       })
-      .on('open', () => stream.pipe(res))
-      .on('error', err => res.end(err))
-  })
-})
+      .on("open", () => stream.pipe(res))
+      .on("error", err => res.end(err));
+  });
+});
 
-app.get('/download/*', (req, res) => {
-  const folderPathParams = decodeURIComponent(req.path.replace('/download/', ''))
-  const folderPath = path.resolve(ROOT, folderPathParams)
+app.get("/download/*", (req, res) => {
+  const folderPathParams = decodeURIComponent(
+    req.path.replace("/download/", "")
+  );
+  const folderPath = path.resolve(ROOT, folderPathParams);
 
-  fs
-    .stat(folderPath)
+  fs.stat(folderPath)
     .then(stats => {
       if (stats.isDirectory()) {
-        const folderName = `${folderPath.split('/').reverse()[0]}.zip`
+        const folderName = `${folderPath.split("/").reverse()[0]}.zip`;
 
         fs.readdir(folderPath, (err, files) => {
           if (err) {
-            console.log(err)
-            res.sendStatus(500)
+            console.log(err);
+            res.sendStatus(500);
           } else {
-            res.zip(files.map(file => {
-              return {
-                path: `${folderPath}/${file}`,
-                name: file
-              }
-            }), folderName)
+            res.zip(
+              files.map(file => {
+                return {
+                  path: `${folderPath}/${file}`,
+                  name: file
+                };
+              }),
+              folderName
+            );
           }
-        })
+        });
       } else {
-        res.download(folderPath)
+        res.download(folderPath);
       }
     })
-    .catch(_ => res.sendStatus(500))
-})
+    .catch(_ => res.sendStatus(500));
+});
 
-app.get('*', (req, res) => {
-  const folderPathParams = decodeURIComponent(req.path.slice(1))
-  const folderPath = path.resolve(__dirname, folderPathParams)
+app.get("*", (req, res) => {
+  const folderPathParams = decodeURIComponent(req.path.slice(1));
+  const folderPath = path.resolve(ROOT, folderPathParams);
 
   if (isFolder(folderPath)) {
-    const currentPath = req.path.split('/')
-    const backUrl = currentPath.slice(0, currentPath.length - 1).join('/') || '/'
+    const currentPath = req.path.split("/");
+    const backUrl =
+      currentPath.slice(0, currentPath.length - 1).join("/") || "/";
 
-    fs
-      .ensureFile(folderPath)
-      .then(() => fs.readdir(folderPath))
+    fs.readdir(folderPath)
       .then(resolveDirectories(folderPath))
       .then(files => {
-        res.render('index', {
+        res.render("index", {
           files,
           backUrl,
           folderPath: folderPathParams,
-          breadcrumb: req.path.slice(1).split('/')
-        })
+          breadcrumb: req.path
+            .slice(1)
+            .split("/")
+            .map(v => ({
+              label: decodeURI(v),
+              value: v
+            }))
+        });
       })
       .catch(err => {
-        console.error(err)
-        res.render('error', { folderPath })
-      })
+        console.error(err);
+        res.render("error", { folderPath });
+      });
   } else {
-    res.render('details', {
+    res.render("details", {
       folderPath: folderPathParams,
-      name: req.path.split('/').slice(-1),
-      breadcrumb: req.path.slice(1).split('/')
-    })
+      name: req.path.split("/").slice(-1),
+      breadcrumb: req.path.slice(1).split("/")
+    });
   }
-})
+});
 
-app.listen(PORT, () => console.log(`Server started on localhost:${PORT}`))
+app.listen(PORT, () => console.log(`Server started on localhost:${PORT}`));
