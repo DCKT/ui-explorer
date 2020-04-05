@@ -1,0 +1,7 @@
+(Source bs-react)
+(Cfg_str project_name client)
+(Cfg_str project_slug client)
+(Cfg_str project_description"client of explorer")
+(Cfg_str author_name DCK)
+(Cfg_str css_framework TailwindCSS)
+(Cfg_str ci_cd Github)

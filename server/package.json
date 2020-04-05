@@ -1,0 +1,25 @@
+{
+  "name": "server",
+  "version": "0.1.0",
+  "scripts": {
+    "build": "bsb -make-world",
+    "start": "bsb -make-world -w",
+    "clean": "bsb -clean-world",
+    "dev": "nodemon src/server.bs.js"
+  },
+  "keywords": [
+    "BuckleScript"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "bs-platform": "^7.1.1",
+    "nodemon": "^2.0.2"
+  },
+  "dependencies": {
+    "@dck/bs-node": "^0.3.3",
+    "bs-express": "^1.0.1",
+    "express": "^4.17.1",
+    "reason-promise": "^1.0.2"
+  }
+}

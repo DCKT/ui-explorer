@@ -2,43 +2,30 @@ const express = require("express");
 const app = express();
 const fs = require("fs-promise");
 const path = require("path");
-const zip = require("express-zip");
-
+const cors = require("cors");
 const __DEV__ = process.env.NODE_ENV !== "production";
 const PORT = 4444;
 const ROOT = __DEV__ ? __dirname : path.resolve(__dirname, "../downloads");
 
-app.set("view engine", "pug");
-app.use(express.static("assets"));
+app.use(express.static("client/build"));
 
-const isFolder = file => !path.extname(file);
+const isFolder = (file) => !path.extname(file);
 
-const resolveDirectories = currentFolder => files => {
+const resolveDirectories = (currentFolder) => (files) => {
   return Promise.all(
-    files.map(file =>
-      fs.lstat(path.resolve(currentFolder, file)).then(stats => ({
+    files.map((file) =>
+      fs.lstat(path.resolve(currentFolder, file)).then((stats) => ({
         name: file,
-        isDirectory: stats.isDirectory()
+        isDirectory: stats.isDirectory(),
       }))
     )
   );
 };
 
-app.get("/", (req, res) => {
-  fs.readdir(ROOT)
-    .then(resolveDirectories(ROOT))
-    .then(files => {
-      res.render("index", {
-        files,
-        isRoot: true
-      });
-    })
-    .catch(err => console.error(err));
-});
-
 app.get("/source/*", (req, res) => {
   const folderPathParams = decodeURIComponent(req.path.replace("/source/", ""));
   const folderPath = path.resolve(ROOT, folderPathParams);
+  const fileExtension = path.extname(folderPath).slice(1);
 
   fs.stat(folderPath, (err, stats) => {
     if (err) {
@@ -61,16 +48,16 @@ app.get("/source/*", (req, res) => {
       "Content-Range": `bytes ${start}-${end}/${total}`,
       "Accept-Ranges": "bytes",
       "Content-Length": chunksize,
-      "Content-Type": "video/mp4"
+      "Content-Type": `video/${fileExtension}`,
     });
 
     const stream = fs
       .createReadStream(folderPath, {
         start,
-        end
+        end,
       })
       .on("open", () => stream.pipe(res))
-      .on("error", err => res.end(err));
+      .on("error", (err) => res.end(err));
   });
 });
 
@@ -81,7 +68,7 @@ app.get("/download/*", (req, res) => {
   const folderPath = path.resolve(ROOT, folderPathParams);
 
   fs.stat(folderPath)
-    .then(stats => {
+    .then((stats) => {
       if (stats.isDirectory()) {
         const folderName = `${folderPath.split("/").reverse()[0]}.zip`;
 
@@ -91,10 +78,10 @@ app.get("/download/*", (req, res) => {
             res.sendStatus(500);
           } else {
             res.zip(
-              files.map(file => {
+              files.map((file) => {
                 return {
                   path: `${folderPath}/${file}`,
-                  name: file
+                  name: file,
                 };
               }),
               folderName
@@ -105,45 +92,54 @@ app.get("/download/*", (req, res) => {
         res.download(folderPath);
       }
     })
-    .catch(_ => res.sendStatus(500));
+    .catch((err) => {
+      console.log("error", err);
+      res.sendStatus(500);
+    });
 });
 
-app.get("*", (req, res) => {
-  const folderPathParams = decodeURIComponent(req.path.slice(1));
+app.get("/api/*", cors(), (req, res) => {
+  const requestPath = req.path.replace("/api/", "");
+  const folderPathParams = decodeURIComponent(requestPath);
   const folderPath = path.resolve(ROOT, folderPathParams);
 
   if (isFolder(folderPath)) {
-    const currentPath = req.path.split("/");
+    const currentPath = requestPath.split("/");
     const backUrl =
       currentPath.slice(0, currentPath.length - 1).join("/") || "/";
 
     fs.readdir(folderPath)
       .then(resolveDirectories(folderPath))
-      .then(files => {
-        res.render("index", {
-          files,
+      .then((files) => {
+        const breadcrumb = requestPath.split("/");
+
+        res.send({
+          content: files,
           backUrl,
           folderPath: folderPathParams,
-          breadcrumb: req.path
-            .slice(1)
-            .split("/")
-            .map(v => ({
-              label: decodeURI(v),
-              value: v
-            }))
+          breadcrumb: breadcrumb.map((path, index) => ({
+            label: decodeURI(path),
+            value: `/${breadcrumb.slice(0, index + 1).join("/")}`,
+          })),
         });
       })
-      .catch(err => {
+      .catch((err) => {
         console.error(err);
         res.render("error", { folderPath });
       });
   } else {
     res.render("details", {
       folderPath: folderPathParams,
-      name: req.path.split("/").slice(-1),
-      breadcrumb: req.path.slice(1).split("/")
+      name: requestPath.split("/").slice(-1),
+      breadcrumb: requestPath.slice(1).split("/"),
     });
   }
+});
+
+app.get("*", (req, res) => {
+  res.render({
+    fileName: "index.html",
+  });
 });
 
 app.listen(PORT, () => console.log(`Server started on localhost:${PORT}`));

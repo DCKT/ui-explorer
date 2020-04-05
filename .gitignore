@@ -2,3 +2,5 @@
 node_modules
 videos
 .DS_Store
+server/tests
+server/.vscode
