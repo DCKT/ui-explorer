@@ -1,5 +1,7 @@
 open Js.Promise;
 
+[@bs.val] external baseURL: string = "process.env.REMOTE_URL";
+
 [@decco]
 type breadcrumb = {
   label: string,
@@ -15,7 +17,7 @@ type response = {
 };
 
 let getFolder = path =>
-  Axios.get("http://localhost:4444/api" ++ path)
+  Axios.get(baseURL ++ "/api" ++ path)
   |> then_(res => res##data->resolve)
   |> then_(content =>
        switch (content->response_decode) {

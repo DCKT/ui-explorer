@@ -22,6 +22,7 @@
     "axios": "^0.19.2",
     "bs-axios": "^0.0.43",
     "decco": "^1.2.0",
+    "dotenv-webpack": "^1.7.0",
     "re-classnames": "^4.1.0",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
