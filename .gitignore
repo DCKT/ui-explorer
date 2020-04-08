@@ -4,4 +4,3 @@ videos
 .DS_Store
 server/tests
 server/.vscode
-*.bs.js
