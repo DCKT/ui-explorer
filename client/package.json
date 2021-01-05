@@ -19,7 +19,7 @@
   ],
   "dependencies": {
     "autoprefixer": "^9.7.3",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "bs-axios": "^0.0.43",
     "decco": "^1.2.0",
     "dotenv-webpack": "^1.7.0",
